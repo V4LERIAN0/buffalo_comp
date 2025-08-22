@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}Editar horario{% endblock %}
+{% block content %}
+
+<form method="get" class="flex gap-2 mb-3">
+  <select name="event" class="border rounded p-2">
+    <option value="1" {% if event.number == 1 %}selected{% endif %}>Evento 1</option>
+    <option value="2" {% if event.number == 2 %}selected{% endif %}>Evento 2</option>
+    <option value="3" {% if event.number == 3 %}selected{% endif %}>Evento 3</option>
+  </select>
+  <button class="px-3 py-2 rounded bg-neutral-900 text-white">Ver</button>
+</form>
+
+<form method="post">
+  {% csrf_token %}
+
+  {{ formset.management_form }}   
+
+  <table class="min-w-full text-sm">
+    <thead>
+      <tr class="text-left">
+        <th class="p-2">División</th>
+        <th class="p-2">Heat</th>
+        <th class="p-2">Inicio</th>
+      </tr>
+    </thead>
+    <tbody>
+      {# Easiest: iterate forms and read the instance for labels #}
+      {% for form in formset.forms %}
+        {% with heat=form.instance %}
+          <tr>
+            <td class="p-2">{{ heat.division.display_name }}</td>
+            <td class="p-2">{{ heat.number }}</td>
+            <td class="p-2">
+              {{ form.id }}           
+              {{ form.start_time }}   
+            </td>
+          </tr>
+        {% endwith %}
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <button class="mt-3 px-3 py-2 rounded bg-neutral-900 text-white">Guardar cambios</button>
+</form>
+
+{% endblock %}

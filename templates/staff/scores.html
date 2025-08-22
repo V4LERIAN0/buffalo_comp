@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% block title %}Cargar scores{% endblock %}
+{% block content %}
+
+<form method="get" class="flex flex-wrap gap-2 mb-3" data-autosubmit="change">
+  <select name="event" class="border rounded p-2">
+    <option value="1" {% if event.number == 1 %}selected{% endif %}>Evento 1</option>
+    <option value="2" {% if event.number == 2 %}selected{% endif %}>Evento 2</option>
+    <option value="3" {% if event.number == 3 %}selected{% endif %}>Evento 3</option>
+  </select>
+
+  <select name="cat" class="border rounded p-2">
+    <option value="sx" {% if division.category == 'sx' %}selected{% endif %}>Sx</option>
+    <option value="intermedio" {% if division.category == 'intermedio' %}selected{% endif %}>Intermedio</option>
+    <option value="rx" {% if division.category == 'rx' %}selected{% endif %}>Rx</option>
+  </select>
+
+  <select name="sexo" class="border rounded p-2">
+    <option value="F" {% if division.sex == 'F' %}selected{% endif %}>F</option>
+    <option value="M" {% if division.sex == 'M' %}selected{% endif %}>M</option>
+  </select>
+
+  <select name="part" class="border rounded p-2">
+    {% for p in parts %}
+      <option value="{{ p.slug }}" {% if p.id == part.id %}selected{% endif %}>
+        {% if p.slug %}Parte {{ p.slug }}{% else %}Principal{% endif %} — {{ p.scoring }}
+      </option>
+    {% endfor %}
+  </select>
+
+  <select name="heat" class="border rounded p-2">
+    {% for n in heats_available %}
+      <option value="{{ n }}" {% if heat and heat.number == n %}selected{% endif %}>Heat {{ n }}</option>
+    {% endfor %}
+  </select>
+</form>
+
+{% if formset %}
+  <h2 class="font-semibold mb-2">
+    E{{ event.number }} · {{ division.display_name }} ·
+    {% if part.slug %}Parte {{ part.slug }}{% else %}Principal{% endif %}
+    · Heat {{ heat.number }}
+  </h2>
+
+  {# show formset-level errors if any #}
+  {% if formset.non_form_errors %}
+    <div class="p-2 mb-2 rounded border border-red-300 bg-red-50 text-sm">
+      {{ formset.non_form_errors }}
+    </div>
+  {% endif %}
+
+  <form method="post">
+    {% csrf_token %}
+    {{ formset.management_form }}
+
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-sm">
+        <thead>
+          <tr class="text-left">
+            <th class="p-2">#</th>
+            <th class="p-2">Atleta</th>
+            {% if formset.forms and formset.forms|length > 0 %}
+              {% for field in formset.forms.0.visible_fields %}
+                {% if field.name != 'notes' %}
+                  <th class="p-2">{{ field.label|default:field.name }}</th>
+                {% endif %}
+              {% endfor %}
+              <th class="p-2">Notas</th>
+            {% endif %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for form in formset.forms %}
+            {# include hidden ID and any hidden fields so Django binds correctly #}
+            {% for hf in form.hidden_fields %}{{ hf }}{% endfor %}
+
+            <tr class="align-top">
+              <td class="p-2">{{ forloop.counter }}</td>
+              <td class="p-2 whitespace-nowrap">{{ form.instance.athlete.name }}</td>
+
+              {# field cells (except 'notes', which we place at the end) #}
+              {% for bf in form.visible_fields %}
+                {% if bf.name != 'notes' %}
+                  <td class="p-2">
+                    {{ bf }}
+                    {% if bf.errors %}
+                      <div class="text-xs text-red-600 mt-1">{{ bf.errors|join:", " }}</div>
+                    {% endif %}
+                  </td>
+                {% endif %}
+              {% endfor %}
+
+              <td class="p-2">
+                {{ form.notes }}
+                {% if form.notes.errors %}
+                  <div class="text-xs text-red-600 mt-1">{{ form.notes.errors|join:", " }}</div>
+                {% endif %}
+              </td>
+            </tr>
+
+            {# row-level non-field errors #}
+            {% if form.non_field_errors %}
+              <tr>
+                <td></td>
+                <td colspan="99" class="p-2 text-xs text-red-600">
+                  {{ form.non_field_errors|join:", " }}
+                </td>
+              </tr>
+            {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <button class="mt-3 px-3 py-2 rounded bg-neutral-900 text-white">Guardar</button>
+  </form>
+{% else %}
+  <p class="text-sm text-neutral-500">No hay atletas en este heat.</p>
+{% endif %}
+
+{% if error %}
+  <p class="text-sm text-red-700 mt-3">{{ error }}</p>
+{% endif %}
+
+{% endblock %}

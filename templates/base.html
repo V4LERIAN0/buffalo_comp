@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Competencia{% endblock %}</title>
+  <!-- Tailwind CDN (fine for MVP). -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- HTMX -->
+  <script src="https://unpkg.com/htmx.org@2.0.1"></script>
+</head>
+
+<script>
+document.addEventListener('change', (e) => {
+  const f = e.target.closest('form[data-autosubmit="change"]');
+  if (f) f.submit();
+});
+</script>
+
+<body class="bg-neutral-50 text-neutral-900">
+  <!-- Header -->
+  <header class="sticky top-0 z-50 bg-white border-b">
+    <div class="max-w-screen-sm mx-auto flex items-center justify-between p-3">
+      <a href="/" class="flex items-center gap-2">
+        <img src="/media/logo/logo.buffalo.jpg" alt="Logo buffalo" class="w-8 h-8 rounded" />
+        <img src="/media/logo/logo.compe.jpg" alt="Logo compe" class="w-8 h-8 rounded" />
+      </a>
+      <div class="flex items-center gap-2">
+        {% if user.is_authenticated %}
+        <a href="/me" class="px-3 py-1 text-sm rounded bg-neutral-100">Mi día</a>
+        <form method="post" action="/logout" class="inline">
+          {% csrf_token %}
+          <button class="px-3 py-1 text-sm rounded bg-neutral-100">Salir</button>
+        </form>
+        {% else %}
+        <a href="/login" class="px-3 py-1 text-sm rounded bg-neutral-100">Ingresar</a>
+        {% endif %}
+        <details class="relative">
+          <summary class="list-none cursor-pointer px-2 py-1 rounded border">≡</summary>
+          <nav class="absolute right-0 mt-2 w-48 bg-white rounded shadow ring-1 ring-black/5">
+            <a class="block px-3 py-2 hover:bg-neutral-50" href="/horario">Cronograma</a>
+            <a class="block px-3 py-2 hover:bg-neutral-50" href="/leaderboard">Leaderboard</a>
+            <a class="block px-3 py-2 hover:bg-neutral-50" href="/eventos">Eventos</a>
+            <a class="block px-3 py-2 hover:bg-neutral-50" href="/atletas">Atletas</a>
+            <a class="block px-3 py-2 hover:bg-neutral-50" href="/sponsors">Sponsors</a>
+            {% if user.is_staff %}
+            <div class="border-t my-1"></div>
+            <a class="block px-3 py-2 hover:bg-neutral-50" href="/staff/schedule">Editar horario</a>
+            <a class="block px-3 py-2 hover:bg-neutral-50" href="/staff/scores">Cargar scores</a>
+            <a class="block px-3 py-2 hover:bg-neutral-50" href="/admin/">Django Admin</a>
+            {% endif %}
+          </nav>
+        </details>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-screen-sm mx-auto p-3">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t mt-10">
+    <div class="max-w-screen-sm mx-auto p-3 flex items-center justify-between text-sm">
+      <a href="https://www.instagram.com/buffalo_training?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
+        target="_blank" class="underline">Buffalo Training</a>
+      <a href="https://maps.app.goo.gl/8CJfQ8s2Xz9kV1ox9" target="_blank" class="underline">Cómo llegar</a>
+    </div>
+  </footer>
+</body>
+
+</html>

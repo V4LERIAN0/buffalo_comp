@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block title %}Inicio{% endblock %}
+{% block content %}
+<section id="live" class="mb-4">
+  {% if live_group %}
+    <div class="p-4 rounded-lg bg-red-50 border">
+      <p class="font-semibold">En vivo:</p>
+      <ul class="mt-1 text-sm">
+        {% for h in live_group %}
+          <li>
+            Evento {{ h.event.number }} — {{ h.division.display_name }}
+            · Heat {{ h.number }}
+            · {{ h.start_time|time:"H:i" }}–{{ h.end_time|time:"H:i" }}
+          </li>
+        {% endfor %}
+      </ul>
+      <a class="mt-2 inline-block px-3 py-1 rounded bg-red-600 text-white"
+         href="/horario?event={{ live_group.0.event.number }}">Ver próximos eventos</a>
+    </div>
+  {% elif upcoming_group %}
+    <div class="p-4 rounded-lg bg-amber-50 border">
+      <p class="font-semibold">
+        Próximo ({{ upcoming_group.0.start_time|time:"H:i" }}):
+      </p>
+      <ul class="mt-1 text-sm">
+        {% for h in upcoming_group %}
+          <li>
+            Evento {{ h.event.number }} — {{ h.division.display_name }}
+            · Heat {{ h.number }}
+          </li>
+        {% endfor %}
+      </ul>
+      <a class="mt-2 inline-block px-3 py-1 rounded bg-neutral-900 text-white"
+         href="/horario?event={{ upcoming_group.0.event.number }}">Ver horarios</a>
+    </div>
+  {% else %}
+    <div class="p-4 rounded-lg bg-neutral-100 border">No hay heats programados.</div>
+  {% endif %}
+</section>
+
+
+  <section class="mb-6">
+    <h2 class="font-semibold mb-2">Anuncios</h2>
+    <div class="space-y-2">
+      {% for a in announcements %}
+        <article class="p-3 rounded border {% if a.is_pinned %}bg-yellow-50{% endif %}">
+          <h3 class="font-medium">{{ a.title }}</h3>
+          <p class="text-sm">{{ a.body }}</p>
+        </article>
+      {% empty %}
+        <p class="text-sm text-neutral-500">Sin anuncios.</p>
+      {% endfor %}
+    </div>
+  </section>
+
+<section>
+<h3 class="mt-4 mb-2 font-semibold">Sponsors</h3>
+
+<div class="overflow-x-auto -mx-3 px-3">
+  <div class="inline-flex gap-3 snap-x snap-mandatory">
+    {% for s in sponsors %}
+      <a href="{{ s.link_url }}" target="_blank" rel="noopener"
+         class="shrink-0 w-28 h-28 sm:w-32 sm:h-32 snap-start rounded-lg border bg-white shadow-sm hover:shadow-md transition flex items-center justify-center p-3">
+        {% if s.logo %}
+          <img src="{{ s.logo.url }}" alt="{{ s.name }}" class="max-w-full max-h-full object-contain" loading="lazy">
+        {% else %}
+          <span class="text-xs text-neutral-500">{{ s.name }}</span>
+        {% endif %}
+      </a>
+    {% endfor %}
+  </div>
+</div>
+</section>
+{% endblock %}

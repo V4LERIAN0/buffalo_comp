@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %}Sponsors{% endblock %}
+{% block content %}
+<div class="grid gap-3">
+  {% for s in sponsors %}
+    <a href="{{ s.link_url }}" target="_blank" class="p-3 rounded border bg-white flex items-center gap-3">
+      {% if s.logo %}<img src="{{ s.logo.url }}" class="h-10 object-contain">{% endif %}
+      <span class="font-medium">{{ s.name }}</span>
+      <span class="ml-auto text-xs text-neutral-500">{{ s.tier }}</span>
+    </a>
+  {% empty %}<p class="text-sm text-neutral-500">Aún no hay sponsors.</p>{% endfor %}
+</div>
+{% endblock %}

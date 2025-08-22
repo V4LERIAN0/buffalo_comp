@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+{% load filters %}
+{% block title %}Leaderboard{% endblock %}
+{% block content %}
+
+<!-- Category / Sex chips -->
+<div class="flex items-center gap-2 mb-2">
+
+  {# Category pills (left) — scroll if tight #}
+  <div class="overflow-x-auto whitespace-nowrap">
+    <div class="inline-flex gap-2">
+      <a href="?cat=sx&sexo={{ division.sex }}{% if scope == 'part' and part %}&scope=part&event={{ part.event.number }}&part={{ part.slug }}{% endif %}"
+         class="px-3 py-1 rounded border {% if division.category == 'sx' %}bg-neutral-900 text-white{% else %}bg-white{% endif %}">Sx</a>
+      <a href="?cat=intermedio&sexo={{ division.sex }}{% if scope == 'part' and part %}&scope=part&event={{ part.event.number }}&part={{ part.slug }}{% endif %}"
+         class="px-3 py-1 rounded border {% if division.category == 'intermedio' %}bg-neutral-900 text-white{% else %}bg-white{% endif %}">Intermedio</a>
+      <a href="?cat=rx&sexo={{ division.sex }}{% if scope == 'part' and part %}&scope=part&event={{ part.event.number }}&part={{ part.slug }}{% endif %}"
+         class="px-3 py-1 rounded border {% if division.category == 'rx' %}bg-neutral-900 text-white{% else %}bg-white{% endif %}">Rx</a>
+    </div>
+  </div>
+
+  {# NEW: Premios button (next to categories) #}
+  <button id="prizeBtnLb"
+          class="ml-2 shrink-0 px-3 py-1 rounded border bg-white hover:bg-neutral-50"
+          title="Premios">
+    🏆 <span class="hidden sm:inline">Premios</span>
+  </button>
+
+  {# Sex icon pills (right) #}
+  <div class="inline-flex flex-nowrap gap-2 ml-auto shrink-0">
+    <a href="?cat={{ division.category }}&sexo=F{% if scope == 'part' and part %}&scope=part&event={{ part.event.number }}&part={{ part.slug }}{% endif %}"
+       class="w-9 h-9 rounded-full border flex items-center justify-center {% if division.sex == 'F' %}bg-neutral-900 text-white{% else %}bg-white{% endif %}"
+       aria-label="Femenino" title="Femenino"><span class="text-lg leading-none">♀</span></a>
+    <a href="?cat={{ division.category }}&sexo=M{% if scope == 'part' and part %}&scope=part&event={{ part.event.number }}&part={{ part.slug }}{% endif %}"
+       class="w-9 h-9 rounded-full border flex items-center justify-center {% if division.sex == 'M' %}bg-neutral-900 text-white{% else %}bg-white{% endif %}"
+       aria-label="Masculino" title="Masculino"><span class="text-lg leading-none">♂</span></a>
+  </div>
+
+</div>
+
+
+
+<!-- Scope chips: General + part-by-part -->
+<div class="flex flex-wrap gap-2 mb-3">
+  <a href="?cat={{ division.category }}&sexo={{ division.sex }}"
+     class="px-3 py-1 rounded border {% if scope != 'part' %}bg-neutral-900 text-white{% else %}bg-white{% endif %}">General</a>
+
+  {% for p in all_parts %}
+    <a href="?scope=part&event={{ p.event.number }}&part={{ p.slug }}&cat={{ division.category }}&sexo={{ division.sex }}"
+       class="px-3 py-1 rounded border
+              {% if scope == 'part' and part and p.id == part.id %}bg-neutral-900 text-white{% else %}bg-white{% endif %}">
+      {% if p.slug %}E{{ p.event.number }}{{ p.slug }}{% else %}E{{ p.event.number }}{% endif %}
+    </a>
+  {% endfor %}
+</div>
+
+{% if scope == 'part' %}
+  <div class="p-3 rounded border bg-white">
+    <h2 class="font-semibold mb-3">{{ division.display_name }} ·
+      {% if part.slug %}E{{ part.event.number }}{{ part.slug }}{% else %}E{{ part.event.number }}{% endif %}
+    </h2>
+
+    {% if rows_part %}
+      <table class="min-w-full text-sm">
+        <thead>
+          <tr class="text-left">
+            <th class="p-2">#</th>
+            <th class="p-2">Atleta</th>
+            <th class="p-2">Score</th>
+            <th class="p-2">Puntos</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for athlete, place, points, disp in rows_part %}
+            <tr>
+              <td class="p-2">{{ place }}</td>
+              <td class="p-2">{{ athlete.name }}</td>
+              <td class="p-2">{{ disp }}</td>
+              <td class="p-2 font-semibold">{{ points }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="text-sm text-neutral-500">Sin datos de puntuación todavía.</p>
+    {% endif %}
+  </div>
+
+{% else %}
+  <div class="p-3 rounded border bg-white">
+    <h2 class="font-semibold mb-3">{{ division.display_name }} — General</h2>
+
+    {% if rows %}
+      <table class="min-w-full text-sm">
+        <thead>
+          <tr class="text-left">
+            <th class="p-2">#</th>
+            <th class="p-2">Atleta</th>
+            <th class="p-2">Total</th>
+            {% for p in parts %}
+              <th class="p-2">{% if p.slug %}E{{ p.event.number }}{{ p.slug }}{% else %}E{{ p.event.number }}{% endif %}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for athlete, total, by_part in rows %}
+            <tr>
+              <td class="p-2">{{ forloop.counter }}</td>
+              <td class="p-2">{{ athlete.name }}</td>
+              <td class="p-2 font-semibold">{{ total }}</td>
+              {% for p in parts %}
+                {% with info=by_part|get_item:p.id %}
+                  <td class="p-2">{% if info %}P{{ info.place }} ({{ info.points }}){% else %}—{% endif %}</td>
+                {% endwith %}
+              {% endfor %}
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="text-sm text-neutral-500">Sin datos de puntuación todavía.</p>
+    {% endif %}
+  </div>
+{% endif %}
+
+<dialog id="prizeDialogLb" class="rounded-lg p-0 w-[min(90vw,28rem)]">
+  <div class="p-4">
+    <div class="flex items-center justify-between mb-2">
+      <h3 class="font-semibold">Premios</h3>
+      <button id="prizeCloseLb" class="px-2" aria-label="Cerrar">✕</button>
+    </div>
+
+    <div class="text-sm space-y-4">
+      <div>
+        <p class="font-medium">Sx (M/F)</p>
+        <p>Increíbles premios de parte de nuestros patrocinadores.</p>
+      </div>
+
+      <div>
+        <p class="font-medium">Intermedio (M/F)</p>
+        <ul class="list-disc ml-5">
+          <li>1.º: $100</li>
+          <li>2.º: $75</li>
+          <li>3.º: $50</li>
+        </ul>
+      </div>
+
+      <div>
+        <p class="font-medium">Rx (M/F)</p>
+        <ul class="list-disc ml-5">
+          <li>1.º: $150</li>
+          <li>2.º: $100</li>
+          <li>3.º: $75</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<script>
+(function () {
+  const btn = document.getElementById('prizeBtnLb');
+  const dlg = document.getElementById('prizeDialogLb');
+  const closeBtn = document.getElementById('prizeCloseLb');
+  if (!btn || !dlg) return;
+  btn.addEventListener('click', () => dlg.showModal());
+  closeBtn?.addEventListener('click', () => dlg.close());
+  dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });
+})();
+</script>
+
+{% endblock %}

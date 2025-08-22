@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block title %}Atletas{% endblock %}
+{% block content %}
+
+{# Category chips #}
+<div class="flex items-center gap-2 mb-2">
+
+  <div class="overflow-x-auto whitespace-nowrap">
+    <div class="inline-flex gap-2">
+      <a href="?cat=sx&sexo={{ division.sex }}"
+         class="px-3 py-1 rounded border {% if division.category == 'sx' %}bg-neutral-900 text-white{% else %}bg-white{% endif %}">Sx</a>
+      <a href="?cat=intermedio&sexo={{ division.sex }}"
+         class="px-3 py-1 rounded border {% if division.category == 'intermedio' %}bg-neutral-900 text-white{% else %}bg-white{% endif %}">Intermedio</a>
+      <a href="?cat=rx&sexo={{ division.sex }}"
+         class="px-3 py-1 rounded border {% if division.category == 'rx' %}bg-neutral-900 text-white{% else %}bg-white{% endif %}">Rx</a>
+    </div>
+  </div>
+
+  <div class="inline-flex flex-nowrap gap-2 ml-auto shrink-0">
+    <a href="?cat={{ division.category }}&sexo=F"
+       class="w-9 h-9 rounded-full border flex items-center justify-center {% if division.sex == 'F' %}bg-neutral-900 text-white{% else %}bg-white{% endif %}"
+       aria-label="Femenino" title="Femenino"><span class="text-lg leading-none">♀</span></a>
+    <a href="?cat={{ division.category }}&sexo=M"
+       class="w-9 h-9 rounded-full border flex items-center justify-center {% if division.sex == 'M' %}bg-neutral-900 text-white{% else %}bg-white{% endif %}"
+       aria-label="Masculino" title="Masculino"><span class="text-lg leading-none">♂</span></a>
+  </div>
+
+</div>
+
+
+
+</div>
+{# Grid of athlete cards #}
+<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+  {% for a in roster %}
+    <div class="rounded border bg-white p-2">
+      {% if a.photo %}
+        {# 4:5 portrait container (no Tailwind plugin needed) #}
+        <div class="relative w-full pt-[125%] rounded overflow-hidden bg-neutral-100">
+          <img src="{{ a.photo.url }}"
+               alt="{{ a.name }}"
+               class="absolute inset-0 w-full h-full object-cover object-center"
+               loading="lazy">
+        </div>
+      {% else %}
+        <div class="relative w-full pt-[125%] rounded overflow-hidden bg-neutral-200"></div>
+      {% endif %}
+
+      <div class="mt-2 text-sm font-medium truncate">{{ a.name }}</div>
+      <div class="text-xs text-neutral-500 truncate">{{ a.box_gym }}</div>
+    </div>
+  {% empty %}
+    <p class="text-sm text-neutral-500 col-span-full">No hay atletas en esta división.</p>
+  {% endfor %}
+</div>
+
+{% endblock %}

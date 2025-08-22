@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load filters %}
+{% block title %}Mi día{% endblock %}
+{% block content %}
+
+{% if athlete %}
+  <h1 class="text-lg font-semibold mb-2">{{ athlete.name }}</h1>
+
+  <div class="mb-4 p-3 rounded border bg-white">
+    <h2 class="font-semibold">Próxima salida</h2>
+    {% if upcoming %}
+      <p>Evento {{ upcoming.heat.event.number }} — {{ upcoming.heat.division.display_name }}</p>
+      <p>Heat {{ upcoming.heat.number }} · {{ upcoming.heat.start_time|time:"H:i" }} · Lane {{ upcoming.lane }}</p>
+    {% else %}
+      <p class="text-sm text-neutral-500">Sin próximas salidas.</p>
+    {% endif %}
+  </div>
+
+  <div class="p-3 rounded border bg-white">
+    <h2 class="font-semibold">Mis heats</h2>
+    <ul class="text-sm space-y-1">
+      {% for la in my_lanes %}
+        <li>
+          E{{ la.heat.event.number }} · {{ la.heat.division.display_name }}
+          · Heat {{ la.heat.number }}
+          · {{ la.heat.start_time|time:"H:i" }} · Lane {{ la.lane }}
+        </li>
+      {% empty %}
+        <li class="text-neutral-500">Sin asignaciones.</li>
+      {% endfor %}
+    </ul>
+
+    <h2 class="font-semibold mt-4">Mis scores</h2>
+    <ul class="text-sm space-y-1">
+      {% for s in my_scores %}
+        <li>
+          {% if s.part.slug %}E{{ s.part.event.number }}{{ s.part.slug }}{% else %}E{{ s.part.event.number }}{% endif %}
+          — {{ s|score_display }}
+        </li>
+      {% empty %}
+        <li class="text-neutral-500">Sin scores aún.</li>
+      {% endfor %}
+    </ul>
+  </div>
+{% else %}
+  <p>No está vinculado a un atleta.</p>
+{% endif %}
+
+{% endblock %}

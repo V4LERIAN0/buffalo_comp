@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load filters %}
+{% block title %}Eventos{% endblock %}
+
+{% block content %}
+
+<!-- Event chips (like cronograma) -->
+<div class="flex gap-2 mb-3">
+  {% for e in events %}
+    <a
+      href="?event={{ e.number }}&cat={{ division.category }}&sexo={{ division.sex }}"
+      class="px-3 py-1 rounded border {% if e.id == event.id %}bg-neutral-900 text-white{% else %}bg-white{% endif %}"
+    >
+      Evento {{ e.number }}
+    </a>
+  {% endfor %}
+</div>
+
+<!-- Division toggles -->
+{# Category chips #}
+<div class="flex gap-2 mb-2">
+  <a href="?event={{ event.number }}&cat=sx&sexo={{ division.sex }}{% if part %}&part={{ part.slug }}{% endif %}"
+     class="px-3 py-1 rounded border {% if division.category == 'sx' %}bg-neutral-900 text-white{% else %}bg-white{% endif %}">
+    Sx
+  </a>
+  <a href="?event={{ event.number }}&cat=intermedio&sexo={{ division.sex }}{% if part %}&part={{ part.slug }}{% endif %}"
+     class="px-3 py-1 rounded border {% if division.category == 'intermedio' %}bg-neutral-900 text-white{% else %}bg-white{% endif %}">
+    Intermedio
+  </a>
+  <a href="?event={{ event.number }}&cat=rx&sexo={{ division.sex }}{% if part %}&part={{ part.slug }}{% endif %}"
+     class="px-3 py-1 rounded border {% if division.category == 'rx' %}bg-neutral-900 text-white{% else %}bg-white{% endif %}">
+    Rx
+  </a>
+</div>
+
+<!-- Card with the spec -->
+<div class="p-4 rounded-lg bg-white border">
+  <h2 class="text-lg font-semibold mb-1">
+    Evento {{ event.number }}
+    {% if part and part.slug %} · Parte {{ part.slug }}{% endif %}
+    — {{ division.display_name }}
+  </h2>
+  {# 1) Main poster (no crop, tappable to open full) #}
+  {% if spec and spec.poster %}
+    <a href="{{ spec.poster.url }}" target="_blank" rel="noopener"
+       class="block rounded-lg border overflow-hidden bg-white">
+      <img src="{{ spec.poster.url }}" alt="Poster del evento"
+           class="w-full h-auto object-contain" loading="lazy">
+    </a>
+  {% elif spec and spec.description_md %}
+    <div class="prose prose-sm max-w-none">
+      <p class="text-neutral-700">Error al cargar imagen</p>
+    </div>
+  {% else %}
+    <p class="text-neutral-700">Pronto se publicarán los estándares.</p>
+  {% endif %}
+
+  {# 2) Optional gallery: first use per-division URLs, then event-level media_urls #}
+  {% if spec_gallery or media_urls %}
+    <h3 class="mt-4 font-medium text-sm">Más detalles</h3>
+    <div class="mt-2 grid grid-cols-2 sm:grid-cols-3 gap-3">
+      {% for u in spec_gallery %}
+        <a href="{{ u }}" target="_blank" rel="noopener"
+           class="block rounded-lg border overflow-hidden bg-white">
+          <img src="{{ u }}" alt="" class="w-full h-auto object-contain" loading="lazy">
+        </a>
+      {% endfor %}
+      {% for u in media_urls %}
+        <a href="{{ u }}" target="_blank" rel="noopener"
+           class="block rounded-lg border overflow-hidden bg-white">
+          <img src="{{ u }}" alt="" class="w-full h-auto object-contain" loading="lazy">
+        </a>
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>
+
+
+{% endblock %}

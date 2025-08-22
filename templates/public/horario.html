@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}Horario{% endblock %}
+{% block content %}
+
+  <!-- Event chips -->
+  <div class="flex gap-2 mb-3">
+    <a class="px-3 py-1 rounded border {% if event.number == 1 %}bg-neutral-900 text-white{% else %}bg-white{% endif %}"
+       href="/horario?event=1">1</a>
+    <a class="px-3 py-1 rounded border {% if event.number == 2 %}bg-neutral-900 text-white{% else %}bg-white{% endif %}"
+       href="/horario?event=2">2</a>
+    <a class="px-3 py-1 rounded border {% if event.number == 3 %}bg-neutral-900 text-white{% else %}bg-white{% endif %}"
+       href="/horario?event=3">3</a>
+  </div>
+
+  {% regroup heats by division as by_div %}
+
+  <div class="space-y-4">
+    {% for group in by_div %}
+      <div class="p-3 rounded border bg-white">
+        <!-- Card header with division name + deep link -->
+        <div class="flex items-center">
+          <h2 class="font-semibold">{{ group.grouper.display_name }}</h2>
+          <a
+            href="{% url 'eventos' %}?event={{ event.number }}&cat={{ group.grouper.category }}&sexo={{ group.grouper.sex }}"
+            class="ml-auto text-xs underline hover:no-underline"
+          >
+            Ver descripción
+          </a>
+        </div>
+
+        <!-- Heats list -->
+        <ul class="mt-2 space-y-1 text-sm">
+          {% for h in group.list %}
+            <li>Heat {{ h.number }} · {{ h.start_time|time:"H:i" }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% empty %}
+      <p class="text-sm text-neutral-500">Sin heats.</p>
+    {% endfor %}
+  </div>
+
+{% endblock %}
