@@ -23,8 +23,9 @@ document.addEventListener('change', (e) => {
   <header class="sticky top-0 z-50 bg-white border-b">
     <div class="max-w-screen-sm mx-auto flex items-center justify-between p-3">
       <a href="/" class="flex items-center gap-2">
-        <img src="/media/logo/logo.buffalo.jpg" alt="Logo buffalo" class="w-8 h-8 rounded" />
-        <img src="/media/logo/logo.compe.jpg" alt="Logo compe" class="w-8 h-8 rounded" />
+        {% load static %}
+        <img src="{% static 'brand/logo.buffalo.jpg' %}" alt="Buffalo">
+        <img src="{% static 'brand/logo.compe.jpg' %}" alt="Competition">
       </a>
       <div class="flex items-center gap-2">
         {% if user.is_authenticated %}
